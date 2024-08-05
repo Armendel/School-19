@@ -1,84 +1,85 @@
-NAME	= fractol
+NAME = fractol
 
 # Compiler
-CC		= gcc
-CFLAGS	= -Werror -Wextra -Wall
+CC = gcc
+CFLAGS = -Werror -Wextra -Wall
 
 # Minilibx
-MLX_PATH	= mlx/
-MLX_NAME	= libmlx.a
-MLX			= $(MLX_PATH)$(MLX_NAME)
+MLX_PATH = mlx/
+MLX_NAME = libmlx.a
+MLX = $(MLX_PATH)$(MLX_NAME)
 
 # Libft
-LIBFT_PATH	= libft/
-LIBFT_NAME	= libft.a
-LIBFT		= $(LIBFT_PATH)$(LIBFT_NAME)
+LIBFT_PATH = libft/
+LIBFT_NAME = libft.a
+LIBFT = $(LIBFT_PATH)$(LIBFT_NAME)
 
 # Includes
-INC			=	-I ./includes/\
-				-I ./libft/includes/\
-				-I ./libft/\
-				-I ./ft_printf\
-				-I ./mlx/
+INC = -I ./includes/ \
+      -I ./libft/includes/ \
+      -I ./libft/ \
+      -I ./ft_printf \
+      -I ./mlx/
 
 # Sources
-SRC_PATH	=	src/
-SRC			=	commands/commands.c \
-				events/events.c \
-				fractal/complex.c \
-				fractal/fractal.c \
-				utils/atod.c \
-				main.c \
+SRC_PATH = src/
+SRC = commands/commands.c \
+      events/events.c \
+      fractal/complex.c \
+      fractal/fractal.c \
+      utils/atod.c \
+      main.c
 
-SRCS		= $(addprefix $(SRC_PATH), $(SRC))
+SRCS = $(addprefix $(SRC_PATH), $(SRC))
 
 # Objects
-OBJ_PATH	= obj/
-OBJ			= $(SRC:.c=.o)
-OBJS		= $(addprefix $(OBJ_PATH), $(OBJ))
+OBJ_PATH = obj/
+OBJS = $(patsubst $(SRC_PATH)%.c,$(OBJ_PATH)%.o,$(SRCS))
 
-all: $(MLX) $(LIBFT) $(NAME)
+# Create directories for object files
+DIRS = $(OBJ_PATH)commands $(OBJ_PATH)events $(OBJ_PATH)fractal $(OBJ_PATH)utils
 
+all: $(DIRS) $(MLX) $(LIBFT) $(NAME)
+
+# Create necessary directories
+$(DIRS):
+	@mkdir -p $(DIRS)
+
+# Compile object files
 $(OBJ_PATH)%.o: $(SRC_PATH)%.c
 	@$(CC) $(CFLAGS) -c $< -o $@ $(INC)
+	@echo "Compiled $< to $@"
 
-$(OBJS): $(OBJ_PATH)
-
-$(OBJ_PATH):
-	@mkdir $(OBJ_PATH)
-	@mkdir $(OBJ_PATH)commands
-	@mkdir $(OBJ_PATH)events
-	@mkdir $(OBJ_PATH)fractal
-	@mkdir $(OBJ_PATH)utils
-
-$(MLX):
-	@echo "Making MiniLibX..."
-	@make -sC $(MLX_PATH)
-
-$(LIBFT):
-	@echo "Making libft..."
-	@make -sC $(LIBFT_PATH)
-
-
-$(NAME): $(OBJS)
-	@echo "Compiling fractol..."
-	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(MLX) $(LIBFT) $(INC) -lXext -lX11 -lm
+# Link the final executable
+$(NAME): $(OBJS) $(MLX) $(LIBFT)
+	@echo "Linking fractol..."
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(MLX) $(LIBFT) -lXext -lX11 -lm
 	@echo "Fractol ready."
 
-bonus: all
+# Build MiniLibX
+$(MLX):
+	@echo "Building MiniLibX..."
+	@make -sC $(MLX_PATH)
 
+# Build libft
+$(LIBFT):
+	@echo "Building libft..."
+	@make -sC $(LIBFT_PATH)
+
+# Clean object files
 clean:
-	@echo "Removing .o object files..."
+	@echo "Cleaning object files..."
 	@rm -rf $(OBJ_PATH)
 	@make clean -C $(MLX_PATH)
 	@make clean -C $(LIBFT_PATH)
 
+# Full clean
 fclean: clean
-	@echo "Removing fractol..."
+	@echo "Removing fractol executable..."
 	@rm -f $(NAME)
-	@rm -f $(MLX_PATH)$(MLX_NAME)
-	@rm -f $(LIBFT_PATH)$(LIBFT_NAME)
+	@make fclean -C $(LIBFT_PATH)
 
+# Rebuild everything
 re: fclean all
 
 .PHONY: all re clean fclean

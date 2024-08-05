@@ -6,7 +6,7 @@
 /*   By: asaini <saini.mendel@gmail.com>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 21:16:17 by mendel            #+#    #+#             */
-/*   Updated: 2024/07/25 16:12:17 by asaini           ###   ########.fr       */
+/*   Updated: 2024/08/05 19:54:48 by asaini           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	calculate_fractal(t_vars *vars)
 	int			j;
 	void		(*f)(t_vars *vars, int, int);
 
+	mlx_clear_window(vars->mlx, vars->win);
 	if (vars->type == 1)
 		f = draw_mandelbrot_color;
 	else
@@ -56,7 +57,8 @@ int	get_color(double it, double max_it)
 	return (r << 16 | g << 8 | b);
 }
 
-static int	get_iteration(double re, double im, double c_x, double c_y)
+static int	get_iteration(double re, double im, t_params *params,
+		double max_it)
 {
 	double	i;
 	double	tmp;
@@ -66,11 +68,11 @@ static int	get_iteration(double re, double im, double c_x, double c_y)
 	i = 0;
 	re_sq = re * re;
 	im_sq = im * im;
-	while (re_sq + im_sq <= 4 && i < MAX_ITERATION)
+	while (re_sq + im_sq <= 4 && i < max_it)
 	{
 		tmp = re;
-		re = re_sq - im_sq + c_x;
-		im = (2 * tmp * im) + c_y;
+		re = re_sq - im_sq + params->x;
+		im = (2 * tmp * im) + params->y;
 		re_sq = re * re;
 		im_sq = im * im;
 		i++;
@@ -80,28 +82,30 @@ static int	get_iteration(double re, double im, double c_x, double c_y)
 
 void	draw_mandelbrot_color(t_vars *vars, int x, int y)
 {
-	double	im;
-	double	re;
-	double	c_re;
-	double	c_im;
-	double	i;
+	double		im;
+	double		re;
+	t_params	params;
+	double		i;
 
-	c_im = to_im(vars->bounds.y_min, vars->bounds.y_max, y);
-	c_re = to_re(vars->bounds.x_min, vars->bounds.x_max, x);
+	params.y = to_im(vars->bounds.y_min, vars->bounds.y_max, y);
+	params.x = to_re(vars->bounds.x_min, vars->bounds.x_max, x);
 	re = vars->c.x;
 	im = vars->c.y;
-	i = get_iteration(re, im, c_re, c_im);
-	put_pixel(&vars->data, x, y, get_color(i, MAX_ITERATION));
+	i = get_iteration(re, im, &params, vars->max_it);
+	put_pixel(&vars->data, x, y, get_color(i, vars->max_it));
 }
 
 void	draw_julia_color(t_vars *vars, int x, int y)
 {
-	double	im;
-	double	re;
-	double	i;
+	double		im;
+	double		re;
+	double		i;
+	t_params	params;
 
 	im = to_im(vars->bounds.y_min, vars->bounds.y_max, y);
 	re = to_re(vars->bounds.x_min, vars->bounds.x_max, x);
-	i = get_iteration(re, im, vars->c.x, vars->c.y);
-	put_pixel(&vars->data, x, y, get_color(i, MAX_ITERATION));
+	params.x = vars->c.x;
+	params.y = vars->c.y;
+	i = get_iteration(re, im, &params, vars->max_it);
+	put_pixel(&vars->data, x, y, get_color(i, vars->max_it));
 }

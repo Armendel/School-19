@@ -6,7 +6,7 @@
 /*   By: asaini <saini.mendel@gmail.com>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 16:03:22 by asaini            #+#    #+#             */
-/*   Updated: 2024/07/25 16:10:33 by asaini           ###   ########.fr       */
+/*   Updated: 2024/08/05 19:07:44 by asaini           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,11 @@
 # include "stdlib.h"
 # include <mlx.h>
 # include <math.h>
-# include <stdio.h>
 # include "libft.h"
 # include "ft_printf.h"
 
 # define ROW 500.0
 # define LINE 500.0
-# define MAX_ITERATION 50.0
 
 enum	e_commands_return
 {
@@ -71,6 +69,7 @@ typedef struct s_vars
 	void				*mlx;
 	void				*win;
 	int					type;
+	double				max_it;
 	t_params			c;
 	t_data				data;
 	t_bounds			bounds;

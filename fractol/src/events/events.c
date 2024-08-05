@@ -6,7 +6,7 @@
 /*   By: asaini <saini.mendel@gmail.com>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 15:32:40 by asaini            #+#    #+#             */
-/*   Updated: 2024/07/25 15:33:48 by asaini           ###   ########.fr       */
+/*   Updated: 2024/07/28 16:48:52 by asaini           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,19 @@
 
 int	close_mlx_win(t_vars *vars)
 {
-	mlx_destroy_image(vars->mlx, vars->data.img);
-	mlx_destroy_window(vars->mlx, vars->win);
+	if (!vars)
+		exit(0);
+	if (vars->data.img)
+		mlx_destroy_image(vars->mlx, vars->data.img);
+	if (vars->win && vars->mlx)
+		mlx_destroy_window(vars->mlx, vars->win);
+	if (vars->mlx)
+	{
+		mlx_loop_end(vars->mlx);
+		mlx_destroy_display(vars->mlx);
+		free(vars->mlx);
+	}
 	exit(0);
-	return (0);
 }
 
 int	key_event(int keycode, t_vars *vars)
